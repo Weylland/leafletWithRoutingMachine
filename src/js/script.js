@@ -18,7 +18,7 @@ map = new L.Map("map", {
     minZoom: 9
 });
 
-L.Routing.control({
+var control = L.Routing.control({
     waypoints: [
         L.latLng(50.433, 2.8279),
         L.latLng(50.633333, 3.066667)
@@ -30,6 +30,36 @@ L.Routing.control({
             locale: 'fr',
         }
     }),
-    geocoder: L.Control.Geocoder.nominatim(),
-    suggest: L.Control.Geocoder.nominatim()
+    geocoder: L.Control.Geocoder.bing('AtwDxrwRVqkTV73gq13SdD0qo7DQFYGRQT-WR0pPb0JS_eVLkKq2okV_MR2qLRlz'),
+    suggest: L.Control.Geocoder.bing('AtwDxrwRVqkTV73gq13SdD0qo7DQFYGRQT-WR0pPb0JS_eVLkKq2okV_MR2qLRlz')
 }).addTo(map);
+
+function createButton(label, container) {
+    var btn = L.DomUtil.create('button', '', container);
+    btn.setAttribute('type', 'button');
+    btn.innerHTML = label;
+    return btn;
+}
+
+map.on('click', function(e) {
+    var container = L.DomUtil.create('div'),
+        startBtn = createButton('Départ', container),
+        destBtn = createButton('Arrivée', container);
+
+    L.DomEvent.on(startBtn, 'click', function() {
+        control.spliceWaypoints(0, 1, e.latlng);
+        map.closePopup();
+    });
+    
+    L.DomEvent.on(destBtn, 'click', function() {
+        control.spliceWaypoints(control.getWaypoints().length - 1, 1, e.latlng);
+        map.closePopup();
+    });
+
+    L.popup()
+        .setContent(container)
+        .setLatLng(e.latlng)
+        .openOn(map);
+});
+
+
